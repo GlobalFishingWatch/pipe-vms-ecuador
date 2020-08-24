@@ -15,7 +15,8 @@ fi
 case $1 in
 
   fetch_ecuador_vms_data)
-    python -m pipe_vms_ecuador.ecuador_api_client "${@:2}"
+    echo "Running python -m pipe_vms_ecuador.ecuador_api_client ${@:2}"
+    python -m pipe_vms_ecuador.ecuador_api_client ${@:2}
     ;;
 
   *)

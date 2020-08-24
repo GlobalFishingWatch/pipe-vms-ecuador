@@ -53,10 +53,10 @@ class PipeVMSEcuadorDagFactory(DagFactory):
                 'retries':5,
                 'max_retry_delay': timedelta(hours=5),
                 'arguments':['fetch_ecuador_vms_data',
-                             '{ecuador_vms_gcs_path}'.format(**config),
-                             '{ds}'.format(**config)]
+                             '-d {ds}'.format(**config),
+                             '-o {ecuador_vms_gcs_path}'.format(**config),
+                             '-rtr {}'.format(config.get('ecuador_api_max_retries', 3))]
             })
-
 
             dag >> fetch
 
