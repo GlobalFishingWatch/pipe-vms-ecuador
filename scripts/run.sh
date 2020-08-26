@@ -3,6 +3,7 @@
 display_usage() {
   echo "Available Commands"
   echo "  fetch_ecuador_vms_data        Download ECUADOR VMS data to GCS"
+  echo "  load_ecuador_vms_data         Load ECUADOR VMS data from GCS to BQ"
 }
 
 

@@ -58,7 +58,22 @@ class PipeVMSEcuadorDagFactory(DagFactory):
                              '-rtr {}'.format(config.get('ecuador_api_max_retries', 3))]
             })
 
-            dag >> fetch
+            load = self.build_docker_task({
+                'task_id':'pipe_ecuador_load',
+                'pool':'k8operators_limit',
+                'docker_run':'{docker_run}'.format(**config),
+                'image':'{docker_image}'.format(**config),
+                'name':'pipe-ecuador-load',
+                'dag':dag,
+                'retries':5,
+                'max_retry_delay': timedelta(hours=5),
+                'arguments':['load_ecuador_vms_data',
+                             '{ds}'.format(**config),
+                             '{ecuador_vms_gcs_path}'.format(**config),
+                             '{ecuador_vms_bq}'.format(**config)]
+            })
+
+            dag >> fetch >> load
 
         return dag
 
