@@ -15,7 +15,6 @@ PACKAGE_NAME='pipe-vms-ecuador'
 package = __import__('pipe_vms_ecuador')
 
 DEPENDENCIES = [
-    "argparse==1.2.1",
     "google-cloud-storage==1.22.0",
     "jinja2-cli",
     "pipe-tools==3.1.2",
