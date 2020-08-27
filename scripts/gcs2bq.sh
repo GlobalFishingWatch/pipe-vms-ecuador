@@ -32,7 +32,8 @@ done
 # Set envs and buid the GCS_SOURCE
 #################################################################
 TABLE_DESTINATION="${BQ_PATH}\$${QUERIED_DATE//-/}"
-GCS_SOURCE="${GCS_PATH}/ecuador_positions_${QUERIED_DATE}.json*"
+GCS_SOURCE="${GCS_PATH}/ecuador_positions_${QUERIED_DATE}.json.gz"
+CLUSTER_BY="mmsi,idnave,matriculanave,nombrenave"
 
 #################################################################
 # Cleaned the table in case it exists. (--replace)
@@ -48,11 +49,11 @@ echo "Successfully removed the partition of the table <${TABLE_DESTINATION}>."
 #################################################################
 # Iterate and Load all JSON from GCS to BQ
 #################################################################
-echo "Load JSON GZIPPED <${GCS_SOURCE}> to bigquery PARTITIONED [clustered by mmsi] <${TABLE_DESTINATION}>"
+echo "Load JSON GZIPPED <${GCS_SOURCE}> to bigquery PARTITIONED [clustered by ${CLUSTER_BY}] <${TABLE_DESTINATION}>"
 bq load \
   --source_format=NEWLINE_DELIMITED_JSON \
   --time_partitioning_type=DAY \
-  --clustering_fields mmsi \
+  --clustering_fields "${CLUSTER_BY}" \
   ${TABLE_DESTINATION} \
   ${GCS_SOURCE} \
   ${ASSETS}/schemas/ecuador_schema.json
@@ -62,7 +63,7 @@ then
   echo "ERROR uploading JSON from GCS <${GCS_SOURCE}> to BQ ${TABLE_DESTINATION}."
   exit ${RESULT}
 else
-  echo "Success: The upload from <${GCS_SOURCE}> -> PARTITIONED [clustered by mmsi] <${TABLE_DESTINATION}> was completed."
+  echo "Success: The upload from <${GCS_SOURCE}> -> PARTITIONED [clustered by ${CLUSTER_BY}] <${TABLE_DESTINATION}> was completed."
 fi
 
 
@@ -74,7 +75,7 @@ TABLE_DESC=(
   "*"
   "* Source: ${GCS_SOURCE} "
   "* Date Processed: ${QUERIED_DATE}"
-  "* Clusterd by mmsi."
+  "* Clusterd by ${CLUSTER_BY}."
 )
 TABLE_DESC=$( IFS=$'\n'; echo "${TABLE_DESC[*]}" )
 bq update --description "${TABLE_DESC}" ${BQ_PATH}
