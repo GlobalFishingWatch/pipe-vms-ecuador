@@ -1,3 +1,12 @@
+"""
+Ecuador API Client
+
+This script will do:
+1- Creates a local directory where to download the data.
+2- Request the ENDPOINT and download the data in GZIP format.
+3- Upload the file to GCS.
+"""
+
 from datetime import datetime, timedelta
 
 from google.cloud import storage
