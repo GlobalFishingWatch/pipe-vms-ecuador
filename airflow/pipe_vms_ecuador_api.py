@@ -39,6 +39,8 @@ class PipeVMSEcuadorDagFactory(DagFactory):
         :@type table: str.
         """
         config = self.config
+        ecuador_vms_gcs_path=config['ecuador_vms_gcs_path']
+        config['ecuador_vms_gcs_path']=ecuador_vms_gcs_path[:-1] if ecuador_vms_gcs_path.endswith('/') else ecuador_vms_gcs_path
 
         two_days_before = datetime.now() - timedelta(days=2)
         with DAG(dag_id, schedule_interval=self.schedule_interval, default_args=self.default_args, end_date=two_days_before) as dag:
@@ -54,7 +56,7 @@ class PipeVMSEcuadorDagFactory(DagFactory):
                 'max_retry_delay': timedelta(hours=5),
                 'arguments':['fetch_ecuador_vms_data',
                              '-d {ds}'.format(**config),
-                             '-o {ecuador_vms_gcs_path}'.format(**config),
+                             '-o {ecuador_vms_gcs_path}/'.format(**config),
                              '-rtr {}'.format(config.get('ecuador_api_max_retries', 3))]
             })
 
