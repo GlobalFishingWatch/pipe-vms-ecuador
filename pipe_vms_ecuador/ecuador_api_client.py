@@ -1,3 +1,12 @@
+"""
+Ecuador API Client
+
+This script will do:
+1- Creates a local directory where to download the data.
+2- Request the ENDPOINT and download the data in GZIP format.
+3- Upload the file to GCS.
+"""
+
 from datetime import datetime, timedelta
 
 from google.cloud import storage
@@ -71,6 +80,9 @@ def query_data(query_date, wait_time_between_api_calls, file_path, max_retries):
             print('Trying to reconnect in {} segs'.format(wait_time_between_api_calls))
             time.sleep(wait_time_between_api_calls)
             retries += 1
+    if not success:
+        print('Can not get the Ecuador data.')
+        sys.exit(1)
 
 
 def create_directory(name):
@@ -119,7 +131,7 @@ if __name__ == '__main__':
     wait_time_between_api_calls = args.wait_time_between_api_calls
     max_retries = int(args.max_retries)
 
-    file_path = "%s/ecuador_positions_%s.json.gz" % (DOWNLOAD_PATH, query_date.strftime(FORMAT_DT))
+    file_path = "%s/%s.json.gz" % (DOWNLOAD_PATH, query_date.strftime(FORMAT_DT))
 
     start_time = time.time()
 
