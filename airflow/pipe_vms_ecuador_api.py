@@ -44,19 +44,20 @@ class PipeVMSEcuadorDagFactory(DagFactory):
 
         with DAG(dag_id, schedule_interval=self.schedule_interval, default_args=self.default_args) as dag:
 
-            fetch = self.build_docker_task({
-                'task_id':'pipe_ecuador_fetch',
-                'pool':ECUADOR_VMS_SCRAPPER_POOL,
+
+            filter_the_query_date = self.build_docker_task({
+                'task_id':'pipe_ecuador_filter',
+                'pool':'k8operators_limit',
                 'docker_run':'{docker_run}'.format(**config),
                 'image':'{docker_image}'.format(**config),
-                'name':'pipe-ecuador-fetch',
+                'name':'pipe-ecuador-filter',
                 'dag':dag,
                 'retries':5,
                 'max_retry_delay': timedelta(hours=5),
-                'arguments':['fetch_ecuador_vms_data',
+                'arguments':['filter_ecuador_vms_data',
                              '-d {ds}'.format(**config),
-                             '-o {ecuador_vms_gcs_path}/'.format(**config),
-                             '-rtr {}'.format(config.get('ecuador_api_max_retries', 3))]
+                             '-i {ecuador_vms_gcs_path}/'.format(**config),
+                             '-o {ecuador_vms_gcs_path}/'.format(**config)]
             })
 
             load = self.build_docker_task({
@@ -74,7 +75,28 @@ class PipeVMSEcuadorDagFactory(DagFactory):
                              '{project_id}:{ecuador_vms_bq_dataset_table}'.format(**config)]
             })
 
-            dag >> fetch >> load
+            if config.get('is_fetch_enabled', False):
+                # The Ecuatorian API brings results from 2 days before the requested date.
+                fetch = self.build_docker_task({
+                    'task_id':'pipe_ecuador_fetch',
+                    'pool':ECUADOR_VMS_SCRAPPER_POOL,
+                    'docker_run':'{docker_run}'.format(**config),
+                    'image':'{docker_image}'.format(**config),
+                    'name':'pipe-ecuador-fetch',
+                    'dag':dag,
+                    'retries':5,
+                    'max_retry_delay': timedelta(hours=5),
+                    'arguments':['fetch_ecuador_vms_data',
+                                 '-d {ds}'.format(**config),
+                                 '-o {ecuador_vms_gcs_path}/'.format(**config),
+                                 '-rtr {}'.format(config.get('ecuador_api_max_retries', 3))]
+                })
+                dag >> fetch >> filter_the_query_date >> load
+            else:
+                # You need to setup the source_gcs_path/s Airflow Variable
+                gcs_source_existence = self.source_gcs_sensors(dag, date='{ds}.json.gz')
+                dag >> gcs_source_existence >> filter_the_query_date >> load
+
 
         return dag
 
