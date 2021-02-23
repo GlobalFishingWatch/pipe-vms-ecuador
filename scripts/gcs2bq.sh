@@ -32,7 +32,8 @@ done
 # Set envs and buid the GCS_SOURCE
 #################################################################
 TABLE_DESTINATION="${BQ_PATH}\$${QUERIED_DATE//-/}"
-GCS_SOURCE="${GCS_PATH}/${QUERIED_DATE}.json.gz"
+GCS_SOURCE="${GCS_PATH}/${QUERIED_DATE}_filtered.json.gz"
+PARTITIONED_BY_FIELD="fechaqth"
 CLUSTER_BY="mmsi,idnave,matriculanave,nombrenave"
 
 #################################################################
@@ -53,10 +54,11 @@ echo "Load JSON GZIPPED <${GCS_SOURCE}> to bigquery PARTITIONED [clustered by ${
 bq load \
   --source_format=NEWLINE_DELIMITED_JSON \
   --time_partitioning_type=DAY \
+  --time_partitioning_field=${PARTITIONED_BY_FIELD} \
   --clustering_fields "${CLUSTER_BY}" \
   ${TABLE_DESTINATION} \
   ${GCS_SOURCE} \
-  ${ASSETS}/schemas/ecuador_schema.json
+  ${ASSETS}/schemas/ecuador_original_schema.json
 RESULT=$?
 if [ "${RESULT}" -ne 0 ]
 then
