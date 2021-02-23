@@ -1,7 +1,7 @@
 [
    {
       "name":"fechaqth",
-      "type":"STRING",
+      "type":"TIMESTAMP",
       "mode":"required",
       "description": "The date when the position was recorded."
    },
