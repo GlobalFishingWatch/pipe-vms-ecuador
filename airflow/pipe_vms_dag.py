@@ -41,8 +41,8 @@ class PipelineDagFactory(DagFactory):
             sql='SELECT '
                     'COUNT(*) FROM `{dataset}.{table}` '
                 'WHERE '
-                    'timestamp > Timestamp("{date}") '
-                    'AND timestamp <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY)'
+                    'utc_time > Timestamp("{date}") '
+                    'AND utc_time <= TIMESTAMP_ADD(Timestamp("{date}"), INTERVAL 1 DAY)'
                 .format(
                     dataset=dataset_id,
                     table=table_id,
