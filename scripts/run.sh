@@ -4,9 +4,10 @@ THIS_SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P  )"
 
 display_usage() {
   echo "Available Commands"
-  echo "  fetch_ecuador_vms_data        Download ECUADOR VMS data to GCS"
+  echo "  fetch_ecuador_vms_data        Download ECUADOR VMS data to GCS."
   echo "  filter_the_query_date         A file can have data from more days, gen a file filtering the query date."
-  echo "  load_ecuador_vms_data         Load ECUADOR VMS data from GCS to BQ"
+  echo "  load_ecuador_vms_data         Load ECUADOR VMS data from GCS to BQ."
+  echo "  fetch_normalized              Normalized the Ecuador data."
 }
 
 
@@ -30,6 +31,11 @@ case $1 in
 
   load_ecuador_vms_data)
     ${THIS_SCRIPT_DIR}/gcs2bq.sh "${@:2}"
+    ;;
+
+  fetch_normalized_vms)
+    echo "Running xdaterange ${THIS_SCRIPT_DIR}/fetch_normalized_vms.sh ${@:2}"
+    xdaterange ${THIS_SCRIPT_DIR}/fetch_normalized_vms.sh "${@:2}"
     ;;
 
   *)

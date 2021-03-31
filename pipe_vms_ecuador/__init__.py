@@ -2,7 +2,7 @@
 Pipeline for processing the Ecuadorian VMS data
 """
 
-__version__ = '1.0.0'
+__version__ = '2.0.0'
 __author__ = 'Matias Piano'
 __email__ = 'enrique@globalfishingwatch.org'
 __source__ = 'https://github.com/GlobalFishingWatch/pipe-vms-ecuador'

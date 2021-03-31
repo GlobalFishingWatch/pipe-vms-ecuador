@@ -1,0 +1,62 @@
+#STANDARDSQL
+WITH
+
+###
+### APPLY BASIC TRANSFORMATIONS TO THE ECUADOR VMS POSITIONS.
+###
+RAW_VMS_POSITIONS_NORMALIZED AS (
+  SELECT
+    nombrenave as SHIPNAME,
+    utc_time as TIMESTAMP,
+    LAT,
+    LON,
+    velocidad as SPEED,
+    rumbo as COURSE,
+    TO_HEX(MD5(LOWER(SAFE_CAST(idnave as STRING)))) AS SSVID,
+    CAST(null as STRING) as IMO,
+    MMSI,
+    matriculanave as CALLSIGN,
+    "ECUADOR_VMS" AS SOURCE,
+    "VMS" AS TYPE,
+    CASE
+      WHEN STARTS_WITH(matriculanave, 'TI') THEN 'international traffic'
+      WHEN STARTS_WITH(matriculanave, 'TN') THEN 'national traffic'
+      WHEN STARTS_WITH(matriculanave, 'P') THEN 'fishing'
+      WHEN STARTS_WITH(matriculanave, 'R') THEN 'tug'
+      WHEN STARTS_WITH(matriculanave, 'B') THEN 'boat'
+      WHEN STARTS_WITH(matriculanave, 'DA') THEN 'auxiliary'
+      ELSE 'unknown'
+    END
+    AS SHIPTYPE
+  FROM
+    `{{ source }}`
+  WHERE
+    utc_time > TIMESTAMP('{{ date }}')
+    AND utc_time <= TIMESTAMP_ADD(TIMESTAMP('{{ date }}'), INTERVAL 1 DAY)
+)
+, result as (
+###
+### GENERATE A MESSAGE ID FOR EVERY MESSAGE OF THE VMS DATA.
+###
+SELECT
+  #COLLECTION_TYPE, MSG_TYPE, TIMESTAMP, LAT, LON, IMO, NAME, CALLSIGN
+  TO_HEX( MD5 (
+    FORMAT("%s|%s|%s|%t|%f|%f|%s|%s|%s",
+        "ECUADOR",
+        IFNULL(TRIM(TRIM(SSVID)),""),
+        IFNULL(TRIM(TRIM(MMSI)),""),
+        TIMESTAMP,
+        LAT,
+        LON,
+        IFNULL(TRIM(TRIM(IMO)),""),
+        IFNULL(TRIM(TRIM(SHIPNAME)),""),
+        IFNULL(TRIM(TRIM(CALLSIGN)),"")
+  ))) AS MSGID,
+  * EXCEPT(MMSI)
+FROM
+  RAW_VMS_POSITIONS_NORMALIZED
+WHERE
+  SSVID IS NOT NULL
+)
+
+select * from RAW_VMS_POSITIONS_NORMALIZED limit 10
