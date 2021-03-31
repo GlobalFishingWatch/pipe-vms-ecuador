@@ -37,16 +37,15 @@ will find all the python code that will be loaded by the Apache Airflow
 scheduler.  There is a script placed at the root of the repo `install.sh` that
 install all the content of the `airflow` folder to the `/dags` folder of the
 docker container where Apache Airflow is running.
-* `assets`: Under the assets
-forlder you will find all the Jinja and Json script having the Bigquery and
-schemes needed for acomplish the purposes of fetch and normalize the VMS data
-from `Ecuador`.
 * `pipe_vms_ecuador`: Under the pipe_vms_ecuador folder you will find an
  `__init__.py` where the details, version and author are described.
 * `scripts`: Under the scripts folder you will find the entrypoint of the
 service specified in the `docker-compose.yaml` (usually `run.sh`) and the
 bash scripts that the system uses to acomplish the fetch and normalize of the
 VMS data from `Ecuador`.
+* `tests`: Under the tests
+forlder you will find all the unit tests related to fetch and normalize the VMS
+data from `Ecuador`.
 
 ## License
 
