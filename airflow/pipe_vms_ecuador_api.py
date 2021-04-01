@@ -88,7 +88,7 @@ class PipeVMSEcuadorDagFactory(DagFactory):
                     'max_retry_delay': timedelta(hours=5),
                     'arguments':['load_ecuador_vms_data',
                                  '{{ macros.ds_add(ds, -2) }}',
-                                 '{ecuador_vms_gcs_path}'.format(**config),
+                                 '{ecuador_vms_filtered_gcs_path}'.format(**config),
                                  '{project_id}:{ecuador_vms_bq_dataset_table}'.format(**config)]
                 })
                 dag >> fetch >> filter_the_query_date >> load
@@ -119,7 +119,7 @@ class PipeVMSEcuadorDagFactory(DagFactory):
                     'max_retry_delay': timedelta(hours=5),
                     'arguments':['load_ecuador_vms_data',
                                  '{{ ds }}',
-                                 '{ecuador_vms_gcs_path}'.format(**config),
+                                 '{ecuador_vms_filtered_gcs_path}'.format(**config),
                                  '{project_id}:{ecuador_vms_bq_dataset_table}'.format(**config)]
                 })
                 # You need to setup the source_gcs_path/s Airflow Variable
