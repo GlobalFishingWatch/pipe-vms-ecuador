@@ -10,8 +10,8 @@ RAW_VMS_POSITIONS_NORMALIZED AS (
     utc_time as TIMESTAMP,
     LAT,
     LON,
-    velocidad as SPEED,
-    rumbo as COURSE,
+    CAST(velocidad as FLOAT64) as SPEED,
+    CAST(rumbo as FLOAT64) as COURSE,
     TO_HEX(MD5(LOWER(SAFE_CAST(idnave as STRING)))) AS SSVID,
     CAST(null as STRING) as IMO,
     MMSI,
@@ -34,7 +34,7 @@ RAW_VMS_POSITIONS_NORMALIZED AS (
     utc_time > TIMESTAMP('{{ date }}')
     AND utc_time <= TIMESTAMP_ADD(TIMESTAMP('{{ date }}'), INTERVAL 1 DAY)
 )
-, result as (
+
 ###
 ### GENERATE A MESSAGE ID FOR EVERY MESSAGE OF THE VMS DATA.
 ###
@@ -57,6 +57,4 @@ FROM
   RAW_VMS_POSITIONS_NORMALIZED
 WHERE
   SSVID IS NOT NULL
-)
 
-select * from RAW_VMS_POSITIONS_NORMALIZED limit 10
