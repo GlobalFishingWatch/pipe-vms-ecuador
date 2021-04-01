@@ -6,18 +6,18 @@ WITH
 ###
 RAW_VMS_POSITIONS_NORMALIZED AS (
   SELECT
-    nombrenave as SHIPNAME,
-    utc_time as TIMESTAMP,
-    LAT,
-    LON,
-    velocidad as SPEED,
-    rumbo as COURSE,
-    TO_HEX(MD5(LOWER(SAFE_CAST(idnave as STRING)))) AS SSVID,
-    CAST(null as STRING) as IMO,
-    MMSI,
-    matriculanave as CALLSIGN,
-    "ECUADOR_VMS" AS SOURCE,
-    "VMS" AS TYPE,
+    nombrenave as shipname,
+    utc_time as timestamp,
+    lat,
+    lon,
+    CAST(velocidad as FLOAT64) as speed,
+    CAST(rumbo as FLOAT64) as course,
+    TO_HEX(MD5(LOWER(SAFE_CAST(idnave as STRING)))) AS ssvid,
+    CAST(null as STRING) as imo,
+    mmsi,
+    matriculanave as callsign,
+    "ECUADOR_VMS" AS source,
+    "VMS" AS type,
     CASE
       WHEN STARTS_WITH(matriculanave, 'TI') THEN 'international traffic'
       WHEN STARTS_WITH(matriculanave, 'TN') THEN 'national traffic'
@@ -27,36 +27,34 @@ RAW_VMS_POSITIONS_NORMALIZED AS (
       WHEN STARTS_WITH(matriculanave, 'DA') THEN 'auxiliary'
       ELSE 'unknown'
     END
-    AS SHIPTYPE
+    AS shiptype
   FROM
     `{{ source }}`
   WHERE
     utc_time > TIMESTAMP('{{ date }}')
     AND utc_time <= TIMESTAMP_ADD(TIMESTAMP('{{ date }}'), INTERVAL 1 DAY)
 )
-, result as (
+
 ###
 ### GENERATE A MESSAGE ID FOR EVERY MESSAGE OF THE VMS DATA.
 ###
 SELECT
-  #COLLECTION_TYPE, MSG_TYPE, TIMESTAMP, LAT, LON, IMO, NAME, CALLSIGN
+  #COUNTRY, SSVID, MMSI, TIMESTAMP, LAT, LON, IMO, NAME, CALLSIGN
   TO_HEX( MD5 (
     FORMAT("%s|%s|%s|%t|%f|%f|%s|%s|%s",
         "ECUADOR",
-        IFNULL(TRIM(TRIM(SSVID)),""),
-        IFNULL(TRIM(TRIM(MMSI)),""),
-        TIMESTAMP,
-        LAT,
-        LON,
-        IFNULL(TRIM(TRIM(IMO)),""),
-        IFNULL(TRIM(TRIM(SHIPNAME)),""),
-        IFNULL(TRIM(TRIM(CALLSIGN)),"")
-  ))) AS MSGID,
-  * EXCEPT(MMSI)
+        IFNULL(TRIM(TRIM(ssvid)),""),
+        IFNULL(TRIM(TRIM(mmsi)),""),
+        timestamp,
+        lat,
+        lon,
+        IFNULL(TRIM(TRIM(imo)),""),
+        IFNULL(TRIM(TRIM(shipname)),""),
+        IFNULL(TRIM(TRIM(callsign)),"")
+  ))) AS msgid,
+  * EXCEPT(mmsi)
 FROM
   RAW_VMS_POSITIONS_NORMALIZED
 WHERE
-  SSVID IS NOT NULL
-)
+  ssvid IS NOT NULL
 
-select * from RAW_VMS_POSITIONS_NORMALIZED limit 10
