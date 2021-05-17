@@ -8,10 +8,10 @@ python $AIRFLOW_HOME/utils/set_default_variables.py \
     dag_install_path="${THIS_SCRIPT_DIR}" \
     dataflow_runner="DataflowRunner" \
     docker_run="{{ var.value.DOCKER_RUN }}" \
-    project_id="{{ var.value.PROJECT_ID }}" \
-    temp_bucket="{{ var.value.TEMP_BUCKET }}"  \
     pipeline_bucket="{{ var.value.PIPELINE_BUCKET }}" \
     pipeline_dataset="{{ var.value.PIPELINE_DATASET }}" \
+    project_id="{{ var.value.PROJECT_ID }}" \
+    temp_bucket="{{ var.value.TEMP_BUCKET }}"  \
     ecuador_vms_filtered_gcs_path="gs://vms-gfw/ecuador/api" \
 
 python $AIRFLOW_HOME/utils/set_default_variables.py \
