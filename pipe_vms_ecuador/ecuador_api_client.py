@@ -19,7 +19,7 @@ import argparse, linecache, gzip, json, os, re, requests, sys, time
 
 
 # ECUADOR ENDPOINT
-ENDPOINT = 'http://190.95.163.7:8080/GeoPosicionFinal/webresources/entidadestabla.nvqths/'
+ENDPOINT = 'http://192.188.196.199:8080/GeoPosicionFinal/webresources/entidadestabla.nvqths/'
 
 # FORMATS
 FORMAT_DT = '%Y-%m-%d'
